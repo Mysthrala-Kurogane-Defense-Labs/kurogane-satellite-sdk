@@ -69,10 +69,14 @@ jobs:
           import sys
           from pathlib import Path
 
-          files = subprocess.check_output(
-              ["git", "ls-files", "*.json", "*.jsonl"],
-              text=True
-          ).splitlines()
+          files = [
+              file_name
+              for file_name in subprocess.check_output(
+                  ["git", "ls-files"],
+                  text=True
+              ).splitlines()
+              if file_name.endswith((".json", ".jsonl"))
+          ]
 
           if not files:
               print("No JSON/JSONL files found.")
@@ -105,7 +109,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          python -m pip install --quiet pyyaml
+          python -m pip install --quiet pyyaml==6.0.2
 
           python - <<'PY'
           import subprocess
@@ -113,10 +117,14 @@ jobs:
           from pathlib import Path
           import yaml
 
-          files = subprocess.check_output(
-              ["git", "ls-files", "*.yml", "*.yaml"],
-              text=True
-          ).splitlines()
+          files = [
+              file_name
+              for file_name in subprocess.check_output(
+                  ["git", "ls-files"],
+                  text=True
+              ).splitlines()
+              if file_name.endswith((".yml", ".yaml"))
+          ]
 
           if not files:
               print("No YAML files found.")
@@ -148,4 +156,4 @@ jobs:
             exit 0
           fi
 
-          printf '%s\0' "${md_files[@]}" | xargs -0 npx --yes markdownlint-cli2
+          printf '%s\0' "${md_files[@]}" | xargs -0 npx --yes markdownlint-cli2@0.14.0
