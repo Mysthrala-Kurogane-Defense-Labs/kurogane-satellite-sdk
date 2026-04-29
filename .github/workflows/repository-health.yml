@@ -35,13 +35,17 @@ jobs:
             "__pycache__"
           )
 
-          for path in "${forbidden_paths[@]}"; do
-            if git ls-files | grep -E "(^|/)${path}(/|$)" > /dev/null; then
-              echo "Forbidden generated artifact is tracked: ${path}"
-              git ls-files | grep -E "(^|/)${path}(/|$)"
-              exit 1
-            fi
-          done
+          while IFS= read -r tracked_path; do
+            for path in "${forbidden_paths[@]}"; do
+              case "${tracked_path}" in
+                "${path}"|"${path}"/*|*/"${path}"|*/"${path}"/*)
+                  echo "Forbidden generated artifact is tracked: ${path}"
+                  echo "${tracked_path}"
+                  exit 1
+                  ;;
+              esac
+            done
+          done < <(git ls-files)
 
       - name: Check for suspicious secret-like files
         shell: bash
@@ -124,7 +128,7 @@ jobs:
               path = Path(file_name)
               try:
                   with path.open("r", encoding="utf-8") as fh:
-                      yaml.safe_load(fh)
+                      list(yaml.safe_load_all(fh))
               except Exception as exc:
                   print(f"Invalid YAML in {file_name}: {exc}")
                   failed = True
@@ -138,10 +142,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          md_files="$(git ls-files '*.md' || true)"
-          if [ -z "$md_files" ]; then
+          mapfile -d '' md_files < <(git ls-files -z '*.md')
+          if [ "${#md_files[@]}" -eq 0 ]; then
             echo "No Markdown files found."
             exit 0
           fi
 
-          npx --yes markdownlint-cli2 "**/*.md" "#_build" "#deps" "#node_modules"
+          printf '%s\0' "${md_files[@]}" | xargs -0 npx --yes markdownlint-cli2
