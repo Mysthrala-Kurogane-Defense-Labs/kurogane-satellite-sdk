@@ -1,0 +1,147 @@
+name: Repository health
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  repository-health:
+    name: Repository health checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for generated artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          forbidden_paths=(
+            "_build"
+            "deps"
+            ".elixir_ls"
+            ".mix"
+            "node_modules"
+            "dist"
+            "build"
+            ".cache"
+            ".pytest_cache"
+            "__pycache__"
+          )
+
+          for path in "${forbidden_paths[@]}"; do
+            if git ls-files | grep -E "(^|/)${path}(/|$)" > /dev/null; then
+              echo "Forbidden generated artifact is tracked: ${path}"
+              git ls-files | grep -E "(^|/)${path}(/|$)"
+              exit 1
+            fi
+          done
+
+      - name: Check for suspicious secret-like files
+        shell: bash
+        run: |
+          set -euo pipefail
+          suspicious_files="$(git ls-files | grep -Ei '(^|/)(\.env(\..*)?|.*\.(pem|key|p12|pfx)|id_rsa|id_ed25519)$' || true)"
+          if [ -n "$suspicious_files" ]; then
+            echo "Suspicious secret-like files are tracked:"
+            echo "$suspicious_files"
+            exit 1
+          fi
+
+      - name: Validate JSON and JSONL files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          files = subprocess.check_output(
+              ["git", "ls-files", "*.json", "*.jsonl"],
+              text=True
+          ).splitlines()
+
+          if not files:
+              print("No JSON/JSONL files found.")
+              sys.exit(0)
+
+          failed = False
+
+          for file_name in files:
+              path = Path(file_name)
+              try:
+                  if path.suffix == ".jsonl":
+                      with path.open("r", encoding="utf-8") as fh:
+                          for idx, line in enumerate(fh, start=1):
+                              line = line.strip()
+                              if line:
+                                  json.loads(line)
+                  else:
+                      with path.open("r", encoding="utf-8") as fh:
+                          json.load(fh)
+              except Exception as exc:
+                  print(f"Invalid JSON in {file_name}: {exc}")
+                  failed = True
+
+          if failed:
+              sys.exit(1)
+          PY
+
+      - name: Validate YAML files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m pip install --quiet pyyaml
+
+          python - <<'PY'
+          import subprocess
+          import sys
+          from pathlib import Path
+          import yaml
+
+          files = subprocess.check_output(
+              ["git", "ls-files", "*.yml", "*.yaml"],
+              text=True
+          ).splitlines()
+
+          if not files:
+              print("No YAML files found.")
+              sys.exit(0)
+
+          failed = False
+
+          for file_name in files:
+              path = Path(file_name)
+              try:
+                  with path.open("r", encoding="utf-8") as fh:
+                      yaml.safe_load(fh)
+              except Exception as exc:
+                  print(f"Invalid YAML in {file_name}: {exc}")
+                  failed = True
+
+          if failed:
+              sys.exit(1)
+          PY
+
+      - name: Markdown lint
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          md_files="$(git ls-files '*.md' || true)"
+          if [ -z "$md_files" ]; then
+            echo "No Markdown files found."
+            exit 0
+          fi
+
+          npx --yes markdownlint-cli2 "**/*.md" "#_build" "#deps" "#node_modules"

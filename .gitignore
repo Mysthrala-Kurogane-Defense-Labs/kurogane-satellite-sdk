@@ -1,3 +1,37 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# Generic build/cache
+.cache/
+tmp/
+temp/
+dist/
+build/
+coverage/
+.coverage
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Elixir/Erlang
 _build/
 deps/
 .coverdata
@@ -7,4 +41,3 @@ doc/
 erl_crash.dump
 .elixir_ls/
 .mix/
-.DS_Store
