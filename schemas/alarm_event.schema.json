@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Mysthrala-Kurogane-Defense-Labs/kurogane-satellite-sdk/schemas/alarm_event.schema.json",
+  "title": "Alarm Event",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "event_id",
+    "occurred_at",
+    "site_id",
+    "asset_id",
+    "type"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "site_id": {
+      "type": "string"
+    },
+    "asset_id": {
+      "type": "string"
+    },
+    "type": {
+      "const": "alarm"
+    },
+    "severity": {
+      "enum": [
+        "info",
+        "warning",
+        "critical"
+      ]
+    },
+    "message": {
+      "type": "string"
+    }
+  }
+}

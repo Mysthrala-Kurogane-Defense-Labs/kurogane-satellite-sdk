@@ -1,0 +1,10 @@
+_build/
+deps/
+.coverdata
+cover/
+doc/
+*.ez
+erl_crash.dump
+.elixir_ls/
+.mix/
+.DS_Store
