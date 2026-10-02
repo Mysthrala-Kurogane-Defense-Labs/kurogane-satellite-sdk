@@ -1,47 +1,41 @@
 name: Elixir CI
-
 on:
   pull_request:
     branches: [main]
   push:
     branches: [main]
-
 permissions:
   contents: read
-
 jobs:
   test:
     name: Test Elixir SDK
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Erlang and Elixir
-        uses: erlef/setup-beam@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: erlef/setup-beam@0f75c29430f34bb5af4cce5e3b7f6a8860fca236 # v1
         with:
-          otp-version: "27"
-          elixir-version: "1.18"
-
-      - name: Restore dependencies cache
-        uses: actions/cache@v4
+          otp-version: '27'
+          elixir-version: '1.18.4'
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          path: |
-            deps
-            _build
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock', '**/mix.exs') }}
-          restore-keys: |
-            ${{ runner.os }}-mix-
-
-      - name: Install dependencies
-        run: mix deps.get
-
-      - name: Check formatting
-        run: mix format --check-formatted
-
-      - name: Compile
-        run: mix compile --warnings-as-errors
-
-      - name: Run tests
-        run: mix test
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python tools/validate_contracts.py
+      - run: python tools/generate_contract_vectors.py
+      - run: mix format
+      - run: git diff --exit-code
+      - run: mix compile --warnings-as-errors
+      - run: mix test
+      - run: mix run examples/basic_event_publisher.exs
+      - run: mix run examples/synthetic_connector.exs
+  minimum:
+    name: Minimum Elixir compatibility
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: erlef/setup-beam@0f75c29430f34bb5af4cce5e3b7f6a8860fca236 # v1
+        with:
+          otp-version: '25'
+          elixir-version: '1.14.5'
+      - run: mix compile --warnings-as-errors
+      - run: mix test

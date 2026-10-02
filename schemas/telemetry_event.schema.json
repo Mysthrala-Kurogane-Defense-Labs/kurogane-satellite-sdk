@@ -1,41 +1,76 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Mysthrala-Kurogane-Defense-Labs/kurogane-satellite-sdk/schemas/telemetry_event.schema.json",
-  "title": "Telemetry Event",
+  "$id": "https://raw.githubusercontent.com/Mysthrala-Kurogane-Defense-Labs/kurogane-satellite-sdk/main/schemas/telemetry_event.schema.json",
+  "title": "Telemetry event \u2014 public contract 0.2",
   "type": "object",
   "additionalProperties": true,
   "required": [
+    "type",
     "event_id",
     "occurred_at",
     "site_id",
     "asset_id",
-    "type"
+    "metric",
+    "value"
   ],
   "properties": {
     "event_id": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "site_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "asset_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "asset_type": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "metric": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "unit": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
     },
     "occurred_at": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "pattern": "^(?!0000)\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:[0-5]\\d(?:\\.\\d{1,6})?(?:Z|[+-]\\d{2}:\\d{2})$"
     },
-    "site_id": {
-      "type": "string"
-    },
-    "asset_id": {
-      "type": "string"
-    },
-    "type": {
-      "const": "telemetry"
-    },
-    "metric": {
-      "type": "string"
+    "severity": {
+      "enum": [
+        "info",
+        "warning",
+        "critical"
+      ]
     },
     "value": {
       "type": "number"
     },
-    "unit": {
-      "type": "string"
+    "type": {
+      "const": "telemetry"
     }
   }
 }
