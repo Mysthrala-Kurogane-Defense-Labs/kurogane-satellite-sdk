@@ -43,3 +43,7 @@ cover/
 erl_crash.dump
 .elixir_ls/
 .mix/
+
+.venv/
+events.jsonl
+report.json

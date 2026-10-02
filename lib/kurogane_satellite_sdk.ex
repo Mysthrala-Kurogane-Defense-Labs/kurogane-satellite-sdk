@@ -9,7 +9,7 @@ defmodule KuroganeSatelliteSdk do
   alias KuroganeSatelliteSdk.Event
 
   @doc "Builds a normalized event map from public fields."
-  def build_event(type, attrs) when is_atom(type) and is_map(attrs) do
+  def build_event(type, attrs) do
     Event.new(type, attrs)
   end
 end

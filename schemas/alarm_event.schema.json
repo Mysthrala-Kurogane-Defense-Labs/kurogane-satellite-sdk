@@ -1,32 +1,63 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Mysthrala-Kurogane-Defense-Labs/kurogane-satellite-sdk/schemas/alarm_event.schema.json",
-  "title": "Alarm Event",
+  "$id": "https://raw.githubusercontent.com/Mysthrala-Kurogane-Defense-Labs/kurogane-satellite-sdk/main/schemas/alarm_event.schema.json",
+  "title": "Alarm event \u2014 public contract 0.2",
   "type": "object",
   "additionalProperties": true,
   "required": [
+    "type",
     "event_id",
     "occurred_at",
     "site_id",
     "asset_id",
-    "type"
+    "severity",
+    "message"
   ],
   "properties": {
     "event_id": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "site_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "asset_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "asset_type": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "metric": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "unit": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
     },
     "occurred_at": {
       "type": "string",
-      "format": "date-time"
-    },
-    "site_id": {
-      "type": "string"
-    },
-    "asset_id": {
-      "type": "string"
-    },
-    "type": {
-      "const": "alarm"
+      "format": "date-time",
+      "pattern": "^(?!0000)\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:[0-5]\\d(?:\\.\\d{1,6})?(?:Z|[+-]\\d{2}:\\d{2})$"
     },
     "severity": {
       "enum": [
@@ -35,8 +66,11 @@
         "critical"
       ]
     },
-    "message": {
-      "type": "string"
+    "value": {
+      "type": "number"
+    },
+    "type": {
+      "const": "alarm"
     }
   }
 }
