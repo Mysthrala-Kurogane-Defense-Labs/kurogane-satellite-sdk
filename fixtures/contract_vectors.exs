@@ -883,5 +883,85 @@
       "value" => 6.4,
       "unit" => "bar"
     }
+  },
+  %{
+    "name" => "asset: accept negative zero UTC offset",
+    "valid" => true,
+    "event" => %{
+      "type" => "asset",
+      "event_id" => "evt-synthetic-asset-001",
+      "occurred_at" => "2026-01-01T00:00:00-00:00",
+      "site_id" => "site-synthetic-alpha",
+      "asset_id" => "pump-1",
+      "name" => "Synthetic Pump 1",
+      "asset_type" => "pump"
+    }
+  },
+  %{
+    "name" => "asset: reject invalid date with negative zero UTC offset",
+    "valid" => false,
+    "event" => %{
+      "type" => "asset",
+      "event_id" => "evt-synthetic-asset-001",
+      "occurred_at" => "2026-02-30T00:00:00-00:00",
+      "site_id" => "site-synthetic-alpha",
+      "asset_id" => "pump-1",
+      "name" => "Synthetic Pump 1",
+      "asset_type" => "pump"
+    }
+  },
+  %{
+    "name" => "alarm: accept negative zero UTC offset",
+    "valid" => true,
+    "event" => %{
+      "type" => "alarm",
+      "event_id" => "evt-synthetic-alarm-001",
+      "occurred_at" => "2026-01-01T00:00:00-00:00",
+      "site_id" => "site-synthetic-alpha",
+      "asset_id" => "pump-1",
+      "severity" => "warning",
+      "message" => "Synthetic pressure deviation"
+    }
+  },
+  %{
+    "name" => "alarm: reject invalid date with negative zero UTC offset",
+    "valid" => false,
+    "event" => %{
+      "type" => "alarm",
+      "event_id" => "evt-synthetic-alarm-001",
+      "occurred_at" => "2026-02-30T00:00:00-00:00",
+      "site_id" => "site-synthetic-alpha",
+      "asset_id" => "pump-1",
+      "severity" => "warning",
+      "message" => "Synthetic pressure deviation"
+    }
+  },
+  %{
+    "name" => "telemetry: accept negative zero UTC offset",
+    "valid" => true,
+    "event" => %{
+      "type" => "telemetry",
+      "event_id" => "evt-synthetic-telemetry-001",
+      "occurred_at" => "2026-01-01T00:00:00-00:00",
+      "site_id" => "site-synthetic-alpha",
+      "asset_id" => "compressor-1",
+      "metric" => "pressure_bar",
+      "value" => 6.4,
+      "unit" => "bar"
+    }
+  },
+  %{
+    "name" => "telemetry: reject invalid date with negative zero UTC offset",
+    "valid" => false,
+    "event" => %{
+      "type" => "telemetry",
+      "event_id" => "evt-synthetic-telemetry-001",
+      "occurred_at" => "2026-02-30T00:00:00-00:00",
+      "site_id" => "site-synthetic-alpha",
+      "asset_id" => "compressor-1",
+      "metric" => "pressure_bar",
+      "value" => 6.4,
+      "unit" => "bar"
+    }
   }
 ]

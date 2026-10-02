@@ -109,7 +109,7 @@ defmodule KuroganeSatelliteSdk.Event do
 
   defp valid_field?(:occurred_at, value) when is_binary(value) do
     String.valid?(value) and Regex.match?(@timestamp, value) and
-      match?({:ok, _, _}, DateTime.from_iso8601(value))
+      match?({:ok, _, _}, DateTime.from_iso8601(calendar_timestamp(value)))
   end
 
   defp valid_field?(:occurred_at, _), do: false
@@ -118,6 +118,11 @@ defmodule KuroganeSatelliteSdk.Event do
 
   defp valid_field?(_, value),
     do: is_binary(value) and String.valid?(value) and String.trim(value) != ""
+
+  # RFC 3339 -00:00 describes a known UTC instant with unknown local offset.
+  # Elixir rejects that spelling; normalize only the calendar-check input.
+  # The event and wire output retain the original timestamp and its semantics.
+  defp calendar_timestamp(value), do: String.replace_suffix(value, "-00:00", "Z")
 
   defp json_value?(value) when is_binary(value), do: String.valid?(value)
   defp json_value?(value) when is_number(value) or is_boolean(value) or is_nil(value), do: true
